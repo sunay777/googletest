@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign-In Test</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<div id="g_id_onload"
+     data-client_id="719123023157-3in0jrksbvrb4s8i44e6g0iurg04vrqg.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<body>
+    <h1>Google Sign-In Example</h1>
+
+    <!-- Google Sign-In Button -->
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+
+    <p id="user-info"></p>
+
+    <script>
+        async function handleCredentialResponse(response) {
+            console.log("Google ID Token:", response.credential);
+
+            // Send the token to the backend for verification
+            const res = await fetch("http://localhost:3000/verify-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: response.credential })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById("user-info").innerHTML =
+                    `<strong>Welcome, ${data.user.name}</strong><br>
+                    Email: ${data.user.email}<br>
+                    <img src="${data.user.picture}" alt="Profile Picture" width="100">`;
+                console.log("User Verified:", data.user);
+            } else {
+                console.error("Token verification failed:", data.message);
+            }
+        }
+    </script>
+</body>
+</html>
